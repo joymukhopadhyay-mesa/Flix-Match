@@ -10,7 +10,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     const { data: session, error } = await supabase
       .from("sessions")
       .select(
-        "id, status, round, partner_a_done, partner_b_done, final_pick_tmdb_id, final_pick_media_type, couple_id, couples(partner_a_profile_id, partner_b_profile_id)"
+        "id, status, round, partner_a_done, partner_b_done, partner_b_joined, final_pick_tmdb_id, final_pick_media_type, couple_id, couples(partner_a_profile_id, partner_b_profile_id)"
       )
       .eq("id", id)
       .single();
@@ -37,7 +37,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       round: session.round,
       partnerADone: session.partner_a_done,
       partnerBDone: session.partner_b_done,
-      partnerBJoined: Boolean(couple?.partner_b_profile_id),
+      partnerBJoined: session.partner_b_joined,
       partnerAPreferencesSubmitted: submittedSlots.has("a"),
       partnerBPreferencesSubmitted: submittedSlots.has("b"),
       finalPick:

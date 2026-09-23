@@ -64,6 +64,7 @@ create table if not exists sessions (
   round int not null default 1,
   partner_a_done boolean not null default false,
   partner_b_done boolean not null default false,
+  partner_b_joined boolean not null default false,
   final_pick_tmdb_id int,
   final_pick_media_type media_type,
   brief_fields jsonb,

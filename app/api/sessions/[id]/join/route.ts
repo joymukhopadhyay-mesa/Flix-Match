@@ -22,13 +22,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (error || !session) return NextResponse.json({ error: "Session not found" }, { status: 404 });
 
     const couple = Array.isArray(session.couples) ? session.couples[0] : session.couples;
-    if (couple && !couple.partner_b_profile_id) {
+    if (couple) {
       await supabase.from("couples").update({ partner_b_profile_id: body.profile.id }).eq("id", couple.id);
     }
 
-    if (session.status === "awaiting_partner_b") {
-      await supabase.from("sessions").update({ status: "collecting_preferences" }).eq("id", id);
-    }
+    const sessionUpdate: Record<string, unknown> = { partner_b_joined: true };
+    if (session.status === "awaiting_partner_b") sessionUpdate.status = "collecting_preferences";
+    await supabase.from("sessions").update(sessionUpdate).eq("id", id);
 
     await broadcastSessionEvent(id, { event: "preferences-updated", payload: { partnerBJoined: true } });
 
