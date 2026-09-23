@@ -30,10 +30,20 @@ export function SwipeDeck({ titles, onSwipe, onExhausted }: SwipeDeckProps) {
   }
 
   return (
-    <div className="flex h-full flex-col gap-4">
-      <div className="text-center text-xs text-muted">{remaining} left</div>
-      <div className="flex flex-1 items-center justify-center overflow-hidden">
-        <div className="relative aspect-[4/5] w-full max-w-[340px]">
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between pb-3">
+        <span className="rounded-full border border-border bg-surface/60 px-3 py-1 text-xs font-medium text-muted backdrop-blur-md">
+          {remaining} left
+        </span>
+      </div>
+
+      <div className="relative flex flex-1 items-center justify-center">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute h-[55%] w-[80%] rounded-full opacity-30 blur-3xl"
+          style={{ background: "radial-gradient(closest-side, var(--accent-b), transparent)" }}
+        />
+        <div className="relative aspect-[4/5] w-auto" style={{ height: "min(78dvh, calc(94vw * 1.25))" }}>
           {visible.map((title, i) => (
             <SwipeCard
               key={`${title.mediaType}:${title.tmdbId}`}
@@ -46,12 +56,13 @@ export function SwipeDeck({ titles, onSwipe, onExhausted }: SwipeDeckProps) {
           ))}
         </div>
       </div>
-      <div className="flex justify-center gap-6 pb-2">
+
+      <div className="flex justify-center gap-8 pb-1 pt-4">
         <button
           type="button"
           aria-label="Pass"
           onClick={() => topCardRef.current?.fling("left")}
-          className="flex h-14 w-14 items-center justify-center rounded-full border border-border text-2xl text-danger transition-transform active:scale-90"
+          className="flex h-16 w-16 items-center justify-center rounded-full border border-border bg-surface text-3xl text-danger shadow-lg shadow-black/40 transition-transform active:scale-90"
         >
           ✕
         </button>
@@ -59,7 +70,7 @@ export function SwipeDeck({ titles, onSwipe, onExhausted }: SwipeDeckProps) {
           type="button"
           aria-label="Like"
           onClick={() => topCardRef.current?.fling("right")}
-          className="flex h-14 w-14 items-center justify-center rounded-full text-2xl text-white transition-transform active:scale-90"
+          className="flex h-16 w-16 items-center justify-center rounded-full text-3xl text-white shadow-lg shadow-black/40 transition-transform active:scale-90"
           style={{ background: "var(--accent-gradient)" }}
         >
           ♥

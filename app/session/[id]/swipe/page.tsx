@@ -71,7 +71,7 @@ export default function SwipePage() {
   if (!slot) return null;
 
   return (
-    <div className="mx-auto flex h-screen max-w-sm flex-col px-4 py-4">
+    <div className="mx-auto flex h-dvh max-w-sm flex-col px-4 py-3">
       {exhausted ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
           <div className="h-10 w-10 animate-spin rounded-full border-2 border-border border-t-accent-b" />

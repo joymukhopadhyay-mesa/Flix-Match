@@ -34,7 +34,7 @@
 }
 
 body {
-  background: var(--background);
+  background: radial-gradient(ellipse 80% 55% at 50% 15%, #151b3d 0%, #0b1026 45%, #050816 100%) fixed;
   color: var(--foreground);
 }
 

@@ -1,5 +1,5 @@
 "use client";
-import { forwardRef, useImperativeHandle } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import Image from "next/image";
 import type { TitleRecord } from "@/lib/types";
@@ -22,8 +22,9 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(function Sw
   { title, active, stackDepth, onSwiped },
   ref
 ) {
+  const [loaded, setLoaded] = useState(false);
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-300, 300], [-18, 18]);
+  const rotate = useTransform(x, [-300, 300], [-16, 16]);
   const likeOpacity = useTransform(x, [20, 120], [0, 1]);
   const nopeOpacity = useTransform(x, [-120, -20], [1, 0]);
 
@@ -48,82 +49,99 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(function Sw
   }
 
   const posterUrl = title.posterPath ? `https://image.tmdb.org/t/p/w780${title.posterPath}` : null;
+  const rating = title.imdbRating ?? title.tmdbRating;
+  const topOtt = title.ottOptions.slice(0, 2);
+  const metaParts = [
+    title.year != null ? String(title.year) : null,
+    title.runtimeMinutes ? formatRuntime(title.runtimeMinutes) : null,
+    title.genres[0] ?? null,
+  ].filter(Boolean) as string[];
 
   return (
     <motion.div
       className="absolute inset-0"
-      style={{
-        x: active ? x : 0,
-        rotate: active ? rotate : 0,
-        zIndex: 100 - stackDepth,
-        scale: 1 - stackDepth * 0.04,
-        top: stackDepth * 10,
-      }}
+      style={{ x: active ? x : 0, rotate: active ? rotate : 0, zIndex: 100 - stackDepth }}
+      animate={{ scale: 1 - stackDepth * 0.04, top: stackDepth * 10 }}
+      transition={{ type: "spring", stiffness: 300, damping: 26 }}
       drag={active ? "x" : false}
       dragElastic={0.9}
       onDragEnd={active ? handleDragEnd : undefined}
     >
-      <div className="relative h-full w-full overflow-hidden rounded-3xl border border-border bg-surface shadow-2xl">
+      <div className="relative h-full w-full overflow-hidden rounded-[24px] border border-border bg-surface shadow-2xl shadow-black/50">
+        {!loaded && <div className="absolute inset-0 animate-pulse bg-surface-2" />}
+
         {posterUrl ? (
           <Image
             src={posterUrl}
             alt={title.title}
             fill
             priority={stackDepth === 0}
-            className="object-cover"
+            className={`object-cover transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
             sizes="(max-width: 480px) 100vw, 420px"
+            onLoad={() => setLoaded(true)}
           />
         ) : (
           <div className="flex h-full items-center justify-center text-5xl">🎬</div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 via-45% to-transparent" />
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 via-40% to-transparent" />
+
+        {rating != null && (
+          <div className="absolute left-4 top-4 rounded-full bg-black/55 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-md">
+            ⭐ {rating.toFixed(1)}
+          </div>
+        )}
+
+        {topOtt.length > 0 && (
+          <div className="absolute right-4 top-4 flex flex-col items-end gap-1.5">
+            {topOtt.map((opt, i) => (
+              <span
+                key={`${opt.service}-${i}`}
+                className="rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md"
+              >
+                {opt.service}
+              </span>
+            ))}
+            {title.ottOptions.length > topOtt.length && (
+              <span className="rounded-full bg-black/40 px-2.5 py-0.5 text-[11px] text-white/70 backdrop-blur-md">
+                +{title.ottOptions.length - topOtt.length}
+              </span>
+            )}
+          </div>
+        )}
 
         {active && (
           <>
             <motion.div
               style={{ opacity: likeOpacity }}
-              className="absolute top-8 left-6 -rotate-12 rounded-lg border-4 border-success px-3 py-1 text-2xl font-black uppercase text-success"
+              className="absolute left-6 top-24 -rotate-12 rounded-lg border-4 border-success px-3 py-1 text-3xl font-black uppercase text-success"
             >
               Like
             </motion.div>
             <motion.div
               style={{ opacity: nopeOpacity }}
-              className="absolute top-8 right-6 rotate-12 rounded-lg border-4 border-danger px-3 py-1 text-2xl font-black uppercase text-danger"
+              className="absolute right-6 top-24 rotate-12 rounded-lg border-4 border-danger px-3 py-1 text-3xl font-black uppercase text-danger"
             >
               Pass
             </motion.div>
           </>
         )}
 
-        <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1.5 p-4 text-white">
+        <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 p-5">
           <div>
-            <h2 className="text-lg font-bold leading-tight break-words">{title.title}</h2>
-            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-white/80">
-              {title.year && <span>{title.year}</span>}
-              {title.imdbRating != null && <span>⭐ {title.imdbRating.toFixed(1)} IMDb</span>}
-              {title.runtimeMinutes && <span>{formatRuntime(title.runtimeMinutes)}</span>}
-            </div>
+            <h2 className="text-[28px] font-bold leading-tight text-white break-words">{title.title}</h2>
+            {metaParts.length > 0 && (
+              <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-white/75">
+                {metaParts.map((part, i) => (
+                  <span key={part} className="flex items-center gap-1.5">
+                    {i > 0 && <span className="text-white/40">•</span>}
+                    {part}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
-
-          {title.ottOptions.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {title.ottOptions.slice(0, 3).map((opt, i) => (
-                <span
-                  key={`${opt.service}-${i}`}
-                  className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] font-medium backdrop-blur-sm"
-                >
-                  {opt.service}
-                </span>
-              ))}
-              {title.ottOptions.length > 3 && (
-                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-white/70">
-                  +{title.ottOptions.length - 3}
-                </span>
-              )}
-            </div>
-          )}
-
-          <p className="line-clamp-2 text-xs text-white/70">{title.synopsis}</p>
+          <p className="line-clamp-3 text-[15px] leading-snug text-white/70">{title.synopsis}</p>
         </div>
       </div>
     </motion.div>
