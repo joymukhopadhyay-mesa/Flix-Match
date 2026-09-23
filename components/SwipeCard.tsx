@@ -76,7 +76,7 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(function Sw
         ) : (
           <div className="flex h-full items-center justify-center text-5xl">🎬</div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 via-45% to-transparent" />
 
         {active && (
           <>
@@ -95,16 +95,35 @@ export const SwipeCard = forwardRef<SwipeCardHandle, SwipeCardProps>(function Sw
           </>
         )}
 
-        <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1.5 p-5 text-white">
-          <div className="flex items-baseline gap-2">
-            <h2 className="text-xl font-bold leading-tight">{title.title}</h2>
-            {title.year && <span className="text-sm text-white/70">{title.year}</span>}
+        <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1.5 p-4 text-white">
+          <div>
+            <h2 className="text-lg font-bold leading-tight break-words">{title.title}</h2>
+            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-white/80">
+              {title.year && <span>{title.year}</span>}
+              {title.imdbRating != null && <span>⭐ {title.imdbRating.toFixed(1)} IMDb</span>}
+              {title.runtimeMinutes && <span>{formatRuntime(title.runtimeMinutes)}</span>}
+            </div>
           </div>
-          <div className="flex items-center gap-3 text-sm text-white/80">
-            {title.imdbRating != null && <span>⭐ {title.imdbRating.toFixed(1)} IMDb</span>}
-            {title.runtimeMinutes && <span>{formatRuntime(title.runtimeMinutes)}</span>}
-          </div>
-          <p className="line-clamp-2 text-sm text-white/70">{title.synopsis}</p>
+
+          {title.ottOptions.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {title.ottOptions.slice(0, 3).map((opt, i) => (
+                <span
+                  key={`${opt.service}-${i}`}
+                  className="rounded-full bg-white/15 px-2 py-0.5 text-[11px] font-medium backdrop-blur-sm"
+                >
+                  {opt.service}
+                </span>
+              ))}
+              {title.ottOptions.length > 3 && (
+                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-white/70">
+                  +{title.ottOptions.length - 3}
+                </span>
+              )}
+            </div>
+          )}
+
+          <p className="line-clamp-2 text-xs text-white/70">{title.synopsis}</p>
         </div>
       </div>
     </motion.div>

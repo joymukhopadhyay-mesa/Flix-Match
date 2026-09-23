@@ -32,17 +32,19 @@ export function SwipeDeck({ titles, onSwipe, onExhausted }: SwipeDeckProps) {
   return (
     <div className="flex h-full flex-col gap-4">
       <div className="text-center text-xs text-muted">{remaining} left</div>
-      <div className="relative flex-1">
-        {visible.map((title, i) => (
-          <SwipeCard
-            key={`${title.mediaType}:${title.tmdbId}`}
-            ref={i === 0 ? topCardRef : undefined}
-            title={title}
-            active={i === 0}
-            stackDepth={i}
-            onSwiped={handleSwiped}
-          />
-        ))}
+      <div className="flex flex-1 items-center justify-center overflow-hidden">
+        <div className="relative aspect-[4/5] w-full max-w-[340px]">
+          {visible.map((title, i) => (
+            <SwipeCard
+              key={`${title.mediaType}:${title.tmdbId}`}
+              ref={i === 0 ? topCardRef : undefined}
+              title={title}
+              active={i === 0}
+              stackDepth={i}
+              onSwiped={handleSwiped}
+            />
+          ))}
+        </div>
       </div>
       <div className="flex justify-center gap-6 pb-2">
         <button
